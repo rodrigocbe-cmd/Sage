@@ -2,12 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from core.engine.rollback import (
-    SnapshotError,
-    SnapshotExistsError,
-    SnapshotStore,
-    default_data_dir,
-)
+from core.engine.paths import default_data_dir
+from core.engine.rollback import SnapshotError, SnapshotExistsError, SnapshotStore
 from core.platform.registry_win import RegType, RegValue
 
 
@@ -78,7 +74,7 @@ def test_corrupted_snapshot_raises_clear_error(store):
     store.save("telemetry", {})
     (store.active_dir / "telemetry.json").write_text("{not json", encoding="utf-8")
 
-    with pytest.raises(SnapshotError, match="Corrupted"):
+    with pytest.raises(SnapshotError, match="corrupted"):
         store.active("telemetry")
 
 

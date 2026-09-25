@@ -26,16 +26,11 @@ from typing import Any
 from pydantic import BaseModel, Field, ValidationError
 from pydantic_core import to_jsonable_python
 
+from core.engine.paths import default_data_dir
 from core.modules.base import Snapshot
 
 SCHEMA_VERSION = 1
 _MODULE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
-
-
-def default_data_dir() -> Path:
-    if override := os.environ.get("SAGE_DATA_DIR"):
-        return Path(override)
-    return Path(os.environ.get("ProgramData", r"C:\ProgramData")) / "Sage"
 
 
 class SnapshotError(Exception):
@@ -103,7 +98,7 @@ class SnapshotStore:
         try:
             return SnapshotRecord.model_validate_json(path.read_bytes())
         except (OSError, ValidationError) as exc:
-            raise SnapshotError(f"Corrupted or unreadable snapshot: {path}") from exc
+            raise SnapshotError(f"Unreadable or corrupted snapshot: {path}") from exc
 
     @staticmethod
     def _write_atomic(path: Path, content: str) -> None:

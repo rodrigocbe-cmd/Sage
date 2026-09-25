@@ -14,6 +14,17 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+Then, once per machine, from an elevated (Administrator) terminal:
+
+```powershell
+sage install
+```
+
+This creates `%ProgramData%\Sage` (snapshots and operation log) and restricts it to
+Administrators and SYSTEM. Snapshots are what `revert` writes back into the registry
+as admin, so a standard user must not be able to edit them. Commands that change the
+system refuse to run until this is done; `--dry-run` works without it.
+
 ## Usage
 
 ```powershell
@@ -23,6 +34,15 @@ python -m cli --help
 ```
 
 Commands that change the system must run from an elevated (Administrator) terminal.
+
+## Tests
+
+```powershell
+pytest -m "not integration"   # pure unit tests, touch nothing
+pytest                        # also real registry (throwaway HKCU keys) and ACL checks
+```
+
+Run the full suite from an elevated terminal to include the data-directory lockdown test.
 
 ## Layout
 
