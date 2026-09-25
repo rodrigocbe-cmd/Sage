@@ -31,6 +31,9 @@ core = ["config/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: touches the real Windows registry (throwaway HKCU keys only)",
+]
 
 [tool.ruff]
 line-length = 100
