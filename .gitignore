@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environment
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Sage runtime data (logs and rollback snapshots are machine-specific)
+logs/
+snapshots/
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
