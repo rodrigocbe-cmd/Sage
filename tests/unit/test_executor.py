@@ -118,3 +118,23 @@ def test_status_reports_unknown_instead_of_crashing(executor, registry):
     status = executor.status(module)
     assert status.state is ModuleState.UNKNOWN
     assert "ZeroDivisionError" in status.details[0]
+
+
+def test_revert_all_reverts_every_snapshot_and_reports_unknown_modules(executor, registry):
+    module = FakeRegistryModule(registry)
+    executor.apply(module)
+    executor.store.save("removed-in-this-version", {})
+
+    results = executor.revert_all(
+        lambda module_id: {module.id: module}[module_id]  # KeyError for unknown ids
+    )
+
+    by_id = {r.module_id: r for r in results}
+    assert by_id[module.id].success
+    assert not by_id["removed-in-this-version"].success
+    assert registry.read(KEY, "First") == RegValue.dword(5)
+    assert [r.module_id for r in executor.store.list_active()] == ["removed-in-this-version"]
+
+
+def test_revert_all_with_nothing_applied(executor):
+    assert executor.revert_all(lambda module_id: None) == []

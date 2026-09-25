@@ -35,6 +35,22 @@ python -m cli --help
 
 Commands that change the system must run from an elevated (Administrator) terminal.
 
+## Building the installer
+
+```powershell
+winget install JRSoftware.InnoSetup   # once
+python builder.py                     # or --skip-installer for just the app
+```
+
+`builder.py` deletes the previous `build/` and `dist/`, compiles `dist/sage/sage.exe`
+with PyInstaller, smoke-tests it and compiles `dist/installer/sage-setup-<version>.exe`
+from `installer/sage.iss`.
+
+The setup wizard installs to `Program Files\Sage`, optionally adds it to `PATH` and runs
+`sage install`. Uninstalling (Settings > Apps) offers to revert every applied tweak
+first, then removes the app folder, `%ProgramData%\Sage` (snapshots and logs), the
+`PATH` entry and the uninstall entry. Nothing Sage created is left behind.
+
 ## Tests
 
 ```powershell
@@ -49,4 +65,6 @@ Run the full suite from an elevated terminal to include the data-directory lockd
 - `core/` — engine: modules, executor, rollback, Windows platform bindings
 - `cli/` — command-line interface
 - `scripts/` — PowerShell scripts called by the core (auditable, versioned)
+- `installer/` — Inno Setup script for the setup wizard and uninstaller
+- `builder.py` — clean build of the app and the installer
 - `tests/` — unit and integration tests

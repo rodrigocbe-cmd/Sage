@@ -101,6 +101,29 @@ class Executor:
         self.oplog.record(result)
         return result
 
+    def revert_all(self, factory: Callable[[str], SageModule]) -> list[ModuleResult]:
+        """Revert every module that has an active snapshot, e.g. before uninstalling.
+
+        ``factory`` turns a snapshot's module id into a module (normally ``catalog.create``).
+        One failure does not stop the others.
+        """
+        results = []
+        for record in self.store.list_active():
+            try:
+                module = factory(record.module_id)
+            except KeyError:
+                results.append(
+                    ModuleResult(
+                        module_id=record.module_id,
+                        action=Action.REVERT,
+                        success=False,
+                        message="Unknown module in this version of Sage; cannot revert it",
+                    )
+                )
+                continue
+            results.append(self.revert(module))
+        return results
+
     def _undo_failed_apply(self, module: SageModule, failed: ModuleResult) -> ModuleResult:
         """An apply failed midway: restore the snapshot taken moments ago."""
         snapshot = self.store.active(module.id)
